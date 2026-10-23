@@ -1,0 +1,37 @@
+{
+  "collectedAt": "2026-10-23T09:00:00Z",
+  "source": "Sanitised demo data",
+  "identity": {
+    "displayName": "Alex Wilson",
+    "userPrincipalName": "alex.wilson@contoso.example",
+    "accountEnabled": true,
+    "userType": "Member",
+    "department": "Operations",
+    "jobTitle": "Coordinator",
+    "createdDateTime": "2025-08-15T08:20:00Z",
+    "lastSignInDateTime": "2026-08-28T16:42:00Z"
+  },
+  "licences": [],
+  "authenticationMethods": [
+    "passwordAuthenticationMethod"
+  ],
+  "networkChecks": [
+    {
+      "name": "login.microsoftonline.com",
+      "succeeded": true,
+      "detail": "DNS resolved and TCP 443 connected."
+    },
+    {
+      "name": "graph.microsoft.com",
+      "succeeded": true,
+      "detail": "DNS resolved and TCP 443 connected."
+    }
+  ],
+  "serviceHealth": [
+    {
+      "service": "Microsoft 365 suite",
+      "status": "serviceOperational"
+    }
+  ]
+}
+

@@ -5,6 +5,7 @@
 - Repository created on 23 October 2026.
 - Project chosen after reviewing the public GitHub portfolio, current CV and a first-line support vacancy.
 - Public portfolio currently shows substantial AWS work but no public Azure service-desk project.
+- PowerShell module, CLI, sanitised demo fixture, Pester tests, Bicep and GitHub Actions have been added locally.
 
 ## Decisions
 
@@ -15,8 +16,9 @@
 
 ## Next
 
-- Implement the support snapshot command and demo dataset.
-- Add Pester tests and CI.
-- Add Bicep validation and screenshots from a real test tenant when available.
+- Run PSScriptAnalyzer, Pester and Bicep compilation locally.
+- Generate and inspect the example case report.
+- Create and push the public GitHub repository.
+- Add screenshots from a real test tenant when available.
 - Publish the verified repository and then update the CV.
 
