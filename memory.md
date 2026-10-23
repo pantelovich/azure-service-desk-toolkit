@@ -6,6 +6,8 @@
 - Project chosen after reviewing the public GitHub portfolio, current CV and a first-line support vacancy.
 - Public portfolio currently shows substantial AWS work but no public Azure service-desk project.
 - PowerShell module, CLI, sanitised demo fixture, Pester tests, Bicep and GitHub Actions have been added locally.
+- Public repository created at `github.com/Pantelovich/azure-service-desk-toolkit`.
+- First GitHub Actions run exposed an obsolete Bicep setup action; CI now installs Bicep through Azure CLI.
 
 ## Decisions
 

@@ -37,7 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-bicep@v2
+      - name: Install Bicep
+        run: az bicep install
       - name: Compile template
-        run: bicep build infra/main.bicep --outfile /tmp/main.json
+        run: az bicep build --file infra/main.bicep --outfile /tmp/main.json
 
