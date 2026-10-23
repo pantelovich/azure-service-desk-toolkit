@@ -1,0 +1,12 @@
+.DS_Store
+.vscode/
+TestResults/
+coverage.xml
+*.log
+*.token
+*.secret
+.env
+reports/*.json
+reports/*.md
+!reports/.gitkeep
+
