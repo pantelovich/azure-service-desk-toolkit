@@ -11,3 +11,10 @@ reports/*.json
 reports/*.md
 !reports/.gitkeep
 
+# Local project notes and orchestration state
+/AGENTS.md
+/context.md
+/memory.md
+/skills.md
+/.claude-flow/
+

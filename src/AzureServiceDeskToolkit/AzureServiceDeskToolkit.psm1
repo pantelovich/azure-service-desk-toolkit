@@ -61,7 +61,7 @@ function Test-MicrosoftEndpoint {
 
             $task.GetAwaiter().GetResult()
             $result.Succeeded = $true
-            $result.Detail = "DNS resolved to $($addresses[0]); TCP $Port connected."
+            $result.Detail = "DNS resolved to $($addresses[0]). TCP $Port connected."
         }
         finally {
             $client.Dispose()
@@ -115,6 +115,18 @@ function Get-LiveSupportSnapshot {
         "https://graph.microsoft.com/v1.0/users/$encodedUpn" +
         '?$select=id,displayName,userPrincipalName,accountEnabled,userType,department,jobTitle,createdDateTime,signInActivity'
     )
+    $signInActivity = if ($user -is [System.Collections.IDictionary]) {
+        $user['signInActivity']
+    }
+    else {
+        $user.PSObject.Properties['signInActivity']?.Value
+    }
+    $successfulSignIn = if ($signInActivity -is [System.Collections.IDictionary]) {
+        $signInActivity['lastSuccessfulSignInDateTime']
+    }
+    elseif ($signInActivity) {
+        $signInActivity.PSObject.Properties['lastSuccessfulSignInDateTime']?.Value
+    }
 
     $licences = (Invoke-MgGraphRequest -Method GET -Uri (
         "https://graph.microsoft.com/v1.0/users/$($user.id)/licenseDetails" +
@@ -139,14 +151,14 @@ function Get-LiveSupportSnapshot {
         CollectedAt = (Get-Date).ToUniversalTime().ToString('o')
         Source      = 'Microsoft Graph'
         Identity    = [pscustomobject]@{
-            DisplayName          = $user.displayName
-            UserPrincipalName    = $user.userPrincipalName
-            AccountEnabled       = $user.accountEnabled
-            UserType             = $user.userType
-            Department           = $user.department
-            JobTitle             = $user.jobTitle
-            CreatedDateTime      = $user.createdDateTime
-            LastSignInDateTime   = $user.signInActivity.lastSignInDateTime
+            DisplayName                 = $user.displayName
+            UserPrincipalName           = $user.userPrincipalName
+            AccountEnabled              = $user.accountEnabled
+            UserType                    = $user.userType
+            Department                  = $user.department
+            JobTitle                    = $user.jobTitle
+            CreatedDateTime             = $user.createdDateTime
+            LastSuccessfulSignInDateTime = $successfulSignIn
         }
         Licences              = @($licences | ForEach-Object { $_.skuPartNumber })
         AuthenticationMethods = @($methods | ForEach-Object { $_.'@odata.type'.Split('.')[-1] })
@@ -191,8 +203,9 @@ function Get-SupportDiagnosis {
             $findings.Add((New-SupportFinding -Severity Warning -Category 'Authentication' -Message 'No strong authentication method was found.' -NextAction 'Check the tenant registration policy and guide the user through the approved MFA registration process.'))
         }
 
-        if ($Snapshot.Identity.LastSignInDateTime) {
-            $lastSignIn = [datetime]$Snapshot.Identity.LastSignInDateTime
+        $successfulSignIn = $Snapshot.Identity.PSObject.Properties['LastSuccessfulSignInDateTime']
+        if ($successfulSignIn -and $successfulSignIn.Value) {
+            $lastSignIn = [datetime]$successfulSignIn.Value
             $daysSinceSignIn = [math]::Floor(($Now.ToUniversalTime() - $lastSignIn.ToUniversalTime()).TotalDays)
             if ($daysSinceSignIn -gt 30) {
                 $findings.Add((New-SupportFinding -Severity Warning -Category 'Sign-in' -Message "The last successful sign-in was $daysSinceSignIn days ago." -NextAction 'Confirm whether the account is still required and review recent sign-in logs before changing access.'))
@@ -200,6 +213,9 @@ function Get-SupportDiagnosis {
             else {
                 $findings.Add((New-SupportFinding -Severity Pass -Category 'Sign-in' -Message "A successful sign-in was recorded $daysSinceSignIn days ago." -NextAction 'Compare the working sign-in with the current device, network and application.'))
             }
+        }
+        else {
+            $findings.Add((New-SupportFinding -Severity Warning -Category 'Sign-in' -Message 'No successful sign-in timestamp is available.' -NextAction 'Review recent sign-in logs before drawing conclusions about successful access.'))
         }
 
         foreach ($check in @($Snapshot.NetworkChecks)) {
@@ -243,7 +259,11 @@ function New-SupportCaseReport {
         New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
     }
 
-    $severityOrder = @{ Critical = 0; Warning = 1; Pass = 2 }
+    $severityOrder = @{
+        Critical = 0
+        Warning  = 1
+        Pass     = 2
+    }
     $orderedFindings = $Findings | Sort-Object { $severityOrder[$_.Severity] }, Category
     $criticalCount = @($Findings | Where-Object Severity -eq 'Critical').Count
     $warningCount = @($Findings | Where-Object Severity -eq 'Warning').Count
@@ -255,11 +275,15 @@ function New-SupportCaseReport {
     else {
         [string]$Snapshot.CollectedAt
     }
-    $lastSignIn = if ($Snapshot.Identity.LastSignInDateTime -is [datetime]) {
-        $Snapshot.Identity.LastSignInDateTime.ToUniversalTime().ToString('o')
-    }
-    else {
-        [string]$Snapshot.Identity.LastSignInDateTime
+    $successfulSignIn = $Snapshot.Identity.PSObject.Properties['LastSuccessfulSignInDateTime']
+    $lastSignIn = 'Unknown'
+    if ($successfulSignIn -and $successfulSignIn.Value) {
+        $lastSignIn = if ($successfulSignIn.Value -is [datetime]) {
+            $successfulSignIn.Value.ToUniversalTime().ToString('o')
+        }
+        else {
+            [string]$successfulSignIn.Value
+        }
     }
 
     $lines = [System.Collections.Generic.List[string]]::new()

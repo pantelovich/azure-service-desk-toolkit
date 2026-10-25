@@ -1,27 +1,21 @@
-# Scenario: Microsoft 365 sign-in problem
+# Fictional support scenario
 
-Alex reports that Outlook and Teams both ask for a licence after sign-in. The request is logged as `CASE-1001`.
+This example uses the fixed fictional data in `examples/demo-user.json`. It is not a live Microsoft 365 connection or a real employee record.
 
-## First-line check
+Alex Wilson reports that Outlook and Teams ask for a licence after sign-in. The fictional case reference is `CASE-1001`.
+
+## Demo report
+
+Run the demo with PowerShell 7.4 or newer:
 
 ```powershell
 pwsh ./scripts/Invoke-SupportSnapshot.ps1 -Demo -CaseReference CASE-1001
 ```
 
-The demo report shows:
+The report reflects the fixture: the account is enabled, no Microsoft 365 licence is assigned, only a password method is listed, and the last successful sign-in timestamp is older than 30 days. Its service health and network results are also fixture data, not current checks.
 
-- the account is enabled;
-- no Microsoft 365 licence is assigned;
-- only a password authentication method is registered;
-- the last successful sign-in is older than 30 days;
-- Microsoft sign-in and Graph endpoints are reachable;
-- Microsoft 365 service health is operational.
+## Example case note
 
-## Case note
+In this fictional case, the missing licence is a possible explanation for the reported applications. Confirm the approved licence request and refer the case to an authorised Microsoft 365 administrator. Handle authentication-method changes through the organisation's approved process. The toolkit does not make these changes.
 
-Account state, licensing, authentication registration, service health and endpoint connectivity were checked. No account changes were made. The missing licence is the most likely reason for the reported applications. Confirm the approved licence request and send the case to an authorised Microsoft 365 administrator. MFA registration should be handled separately through the organisation's approved process.
-
-## Why this is escalated
-
-Assigning a licence changes access and cost. First-line staff should not make that change without an approved request and the right role.
-
+Assigning a licence changes access and may incur cost. First-line staff should follow the organisation's approval process and role boundaries.
